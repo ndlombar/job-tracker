@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models.base import Base
 
@@ -15,3 +15,5 @@ class Interview(Base):
     stage: Mapped[str] = mapped_column(String(15))
     scheduled_at: Mapped[datetime]
     notes: Mapped[str] = mapped_column(String(255))
+
+    application: Mapped["Application"] = relationship(back_populates="interviews")
