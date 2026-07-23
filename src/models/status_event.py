@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.models.base import Base
 
@@ -15,3 +15,5 @@ class StatusEvent(Base):
     old_status: Mapped[str] = mapped_column(String(30))
     new_status: Mapped[str] = mapped_column(String(30))
     changed_at: Mapped[datetime]
+
+    application: Mapped["Application"] = relationship(back_populates="status_events")
