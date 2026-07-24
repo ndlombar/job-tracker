@@ -20,3 +20,11 @@ packages = [{ include = "src" }]
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["src*"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+[dependency-groups]
+dev = [
+    "mypy (>=2.3.0,<3.0.0)"
+]
