@@ -16,6 +16,7 @@ poetry run alembic revision --autogenerate -m "message"   # generate a migration
 poetry run alembic upgrade head         # apply migrations
 poetry run alembic downgrade -1         # revert one migration
 poetry run python -c "..."              # run a one-off script in the project venv
+poetry run mypy src/                    # type-check the src package
 ```
 
 Local Postgres runs via Docker Compose (`docker-compose.yml`, mapped to `localhost:5432`):
@@ -24,7 +25,7 @@ Local Postgres runs via Docker Compose (`docker-compose.yml`, mapped to `localho
 docker-compose up -d
 ```
 
-No test suite, linter, or formatter is configured yet.
+mypy is configured in `[tool.mypy]` in `pyproject.toml` (`strict = true`) as a `dev` dependency group. The `relationship()` type hints in `src/models/` use string forward references (e.g. `Mapped["Application"]`) that SQLAlchemy resolves at runtime via its mapper registry, but mypy needs the referenced class importable in-module — each model file guards these imports behind `if TYPE_CHECKING:` to satisfy mypy without introducing circular imports at runtime. No test suite or formatter is configured yet.
 
 ## Architecture
 
