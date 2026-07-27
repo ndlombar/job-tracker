@@ -4,8 +4,17 @@ from src.schemas.application import (
     ApplicationUpdate,
 )
 
+from src.schemas.contact import (
+    ContactCreate,
+    ContactRead,
+    ContactUpdate
+)
+
 __all__ = [
     "ApplicationCreate",
     "ApplicationRead",
     "ApplicationUpdate",
+    "ContactCreate",
+    "ContactRead",
+    "ContactUpdate"
 ]
