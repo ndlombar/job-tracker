@@ -1,6 +1,6 @@
 import uuid
 from enum import Enum
-from typing import TypeVar
+from typing import TypeVar, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -12,15 +12,13 @@ from src.dependencies import get_db
 from src.models.base import Base
 
 ModelT = TypeVar("ModelT", bound=Base)
-CreateT = TypeVar("CreateT", bound=BaseModel)
-UpdateT = TypeVar("UpdateT", bound=BaseModel)
 
 
 def make_crud_router(
     *,
     model: type[ModelT],
-    create_schema: type[CreateT],
-    update_schema: type[UpdateT],
+    create_schema: type[BaseModel],
+    update_schema: type[BaseModel],
     read_schema: type[BaseModel],
     prefix: str,
     tags: list[str | Enum],
@@ -34,8 +32,9 @@ def make_crud_router(
         return item
 
     @router.post("", response_model=read_schema, status_code=status.HTTP_201_CREATED)
-    def create(payload: CreateT, db: Session = Depends(get_db)) -> ModelT:
-        item = model(**payload.model_dump())
+    def create(payload: create_schema, db: Session = Depends(get_db)) -> ModelT:  # type: ignore[valid-type]
+        item = model(**cast(BaseModel, payload).model_dump())
+        db.add(item)
         try:
             db.commit()
         except IntegrityError as exc:
@@ -53,9 +52,9 @@ def make_crud_router(
         return get(db, item_id)
 
     @router.patch("/{item_id}", response_model=read_schema)
-    def update_item(item_id: uuid.UUID, payload: UpdateT, db: Session = Depends(get_db)) -> ModelT:
+    def update_item(item_id: uuid.UUID, payload: update_schema, db: Session = Depends(get_db)) -> ModelT:  # type: ignore[valid-type]
         item = get(db, item_id)
-        for field, value in payload.model_dump(exclude_unset=True).items():
+        for field, value in cast(BaseModel, payload).model_dump(exclude_unset=True).items():
             setattr(item, field, value)
         try:
             db.commit()
