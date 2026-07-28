@@ -23,12 +23,11 @@ packages = [{ include = "src" }]
 where = ["."]
 include = ["src*"]
 
-[dependency-groups]
-dev = [
-    "mypy (==2.3.0)"
-]
-
 [tool.mypy]
 python_version = "3.11"
-warn_unused_ignores = true
-warn_redundant_casts = true
+strict = true
+
+[dependency-groups]
+dev = [
+    "mypy (>=2.3.0,<3.0.0)"
+]
