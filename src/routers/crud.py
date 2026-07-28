@@ -1,4 +1,5 @@
 import uuid
+from enum import Enum
 from typing import TypeVar
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -11,16 +12,18 @@ from src.dependencies import get_db
 from src.models.base import Base
 
 ModelT = TypeVar("ModelT", bound=Base)
+CreateT = TypeVar("CreateT", bound=BaseModel)
+UpdateT = TypeVar("UpdateT", bound=BaseModel)
 
 
 def make_crud_router(
     *,
     model: type[ModelT],
-    create_schema: type[BaseModel],
-    update_schema: type[BaseModel],
+    create_schema: type[CreateT],
+    update_schema: type[UpdateT],
     read_schema: type[BaseModel],
     prefix: str,
-    tags: list[str],
+    tags: list[str | Enum],
 ) -> APIRouter:
     router = APIRouter(prefix=prefix, tags=tags)
 
@@ -31,9 +34,8 @@ def make_crud_router(
         return item
 
     @router.post("", response_model=read_schema, status_code=status.HTTP_201_CREATED)
-    def create(payload: create_schema, db: Session = Depends(get_db)) -> ModelT:
+    def create(payload: CreateT, db: Session = Depends(get_db)) -> ModelT:
         item = model(**payload.model_dump())
-        db.add(item)
         try:
             db.commit()
         except IntegrityError as exc:
@@ -42,7 +44,7 @@ def make_crud_router(
         db.refresh(item)
         return item
 
-    @router.get("", response_model=list[read_schema])
+    @router.get("", response_model=list[read_schema])  # type: ignore[valid-type]
     def list_items(db: Session = Depends(get_db)) -> list[ModelT]:
         return list(db.execute(select(model)).scalars().all())
 
@@ -51,7 +53,7 @@ def make_crud_router(
         return get(db, item_id)
 
     @router.patch("/{item_id}", response_model=read_schema)
-    def update_item(item_id: uuid.UUID, payload: update_schema, db: Session = Depends(get_db)) -> ModelT:
+    def update_item(item_id: uuid.UUID, payload: UpdateT, db: Session = Depends(get_db)) -> ModelT:
         item = get(db, item_id)
         for field, value in payload.model_dump(exclude_unset=True).items():
             setattr(item, field, value)
