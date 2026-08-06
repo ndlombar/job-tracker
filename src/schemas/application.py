@@ -13,7 +13,7 @@ class ApplicationBase(BaseModel):
 
 
 class ApplicationCreate(ApplicationBase):
-    user_id: uuid.UUID
+    pass
 
 
 class ApplicationUpdate(BaseModel):

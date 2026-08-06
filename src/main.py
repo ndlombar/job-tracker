@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from src.routers import (
     application_router,
+    auth_router,
     contact_router,
     interview_router,
     status_event_router,
@@ -10,6 +11,7 @@ from src.routers import (
 
 app = FastAPI()
 
+app.include_router(auth_router)
 app.include_router(application_router)
 app.include_router(contact_router)
 app.include_router(interview_router)

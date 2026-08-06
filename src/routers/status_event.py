@@ -1,3 +1,6 @@
+from fastapi import Depends
+
+from src.dependencies import get_current_user
 from src.models import StatusEvent
 from src.routers.crud import make_crud_router
 from src.schemas import StatusEventCreate, StatusEventRead, StatusEventUpdate
@@ -9,4 +12,5 @@ router = make_crud_router(
     read_schema=StatusEventRead,
     prefix="/status-events",
     tags=["status-events"],
+    dependencies=[Depends(get_current_user)],
 )

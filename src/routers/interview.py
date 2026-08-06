@@ -1,3 +1,6 @@
+from fastapi import Depends
+
+from src.dependencies import get_current_user
 from src.models import Interview
 from src.routers.crud import make_crud_router
 from src.schemas import InterviewCreate, InterviewRead, InterviewUpdate
@@ -9,4 +12,5 @@ router = make_crud_router(
     read_schema=InterviewRead,
     prefix="/interviews",
     tags=["interviews"],
+    dependencies=[Depends(get_current_user)],
 )
